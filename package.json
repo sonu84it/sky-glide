@@ -1,0 +1,11 @@
+{
+  "name": "sky-glide",
+  "version": "1.0.0",
+  "description": "Simple browser game",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
