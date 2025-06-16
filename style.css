@@ -1,0 +1,58 @@
+body {
+  margin: 0;
+  font-family: 'Bree Serif', sans-serif;
+  background: linear-gradient(#87ceeb, #dff0ff);
+  overflow: hidden;
+}
+
+#game {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.squirrel {
+  position: absolute;
+  width: 60px;
+  height: 40px;
+  background: url('https://raw.githubusercontent.com/Esri/calcite-colors/master/demos/shared-assets/squirrel.svg') center/contain no-repeat;
+  transition: transform 0.1s linear;
+}
+
+.hoop {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border: 6px solid #ffcc00;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  transition: transform 0.02s linear;
+}
+
+.score {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: #333;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.game-over {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: 32px;
+  color: #333;
+}
+
+button.restart {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 20px;
+  cursor: pointer;
+}
