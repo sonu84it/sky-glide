@@ -1,4 +1,4 @@
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect } = React;
 
 const GRAVITY = 0.5;
 const FLAP = -8;
@@ -32,6 +32,7 @@ function App() {
     { id: 0, x: window.innerWidth + 100, y: randomY(), passed: false }
   ]);
   const [score, setScore] = useState(0);
+  const [failedHoop, setFailedHoop] = useState(null);
 
   const flap = () => {
     if (running) {
@@ -58,18 +59,23 @@ function App() {
   useEffect(() => {
     if (!running) return;
     const timer = setInterval(() => {
-      setVelocity(v => v + GRAVITY);
-      setSquirrelY(y => Math.max(0, Math.min(y + velocity, window.innerHeight - 40)));
+      setVelocity(v => {
+        const nv = v + GRAVITY;
+        setSquirrelY(y => Math.max(0, Math.min(y + nv, window.innerHeight - 40)));
+        return nv;
+      });
       setHoops(hs => hs.map(h => ({ ...h, x: h.x - HOOP_SPEED })));
     }, 20);
     const htimer = setInterval(() => {
-      setHoops(hs => [...hs, { id: Date.now(), x: window.innerWidth + 50, y: randomY(), passed: false }]);
+      if (failedHoop === null) {
+        setHoops(hs => [...hs, { id: Date.now(), x: window.innerWidth + 50, y: randomY(), passed: false }]);
+      }
     }, HOOP_INTERVAL);
     return () => {
       clearInterval(timer);
       clearInterval(htimer);
     };
-  }, [running, velocity]);
+  }, [running, failedHoop]);
 
   useEffect(() => {
     if (!running) return;
@@ -78,19 +84,29 @@ function App() {
         if (Math.abs(squirrelY - h.y) <= HOOP_SIZE / 2) {
           h.passed = true;
           setScore(s => s + 1);
-        } else {
-          setRunning(false);
+        } else if (failedHoop === null) {
+          setFailedHoop(h.id);
         }
       }
     });
     setHoops(hs => hs.filter(h => h.x > -HOOP_SIZE));
-  }, [hoops, squirrelY, running]);
+  }, [hoops, squirrelY, running, failedHoop]);
+
+  useEffect(() => {
+    if (failedHoop === null) return;
+    const h = hoops.find(h => h.id === failedHoop);
+    if (!h || h.x <= -HOOP_SIZE) {
+      setRunning(false);
+      setFailedHoop(null);
+    }
+  }, [hoops, failedHoop]);
 
   const restart = () => {
     setScore(0);
     setVelocity(0);
     setSquirrelY(window.innerHeight / 2);
     setHoops([{ id: Date.now(), x: window.innerWidth + 100, y: randomY(), passed: false }]);
+    setFailedHoop(null);
     setRunning(true);
   };
 
