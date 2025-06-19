@@ -33,6 +33,7 @@ function App() {
   ]);
   const [score, setScore] = useState(0);
   const [failedHoop, setFailedHoop] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   const flap = () => {
     if (running) {
@@ -84,6 +85,8 @@ function App() {
         if (Math.abs(squirrelY - h.y) <= HOOP_SIZE / 2) {
           h.passed = true;
           setScore(s => s + 1);
+          setSuccess(true);
+          setTimeout(() => setSuccess(false), 300);
         } else if (failedHoop === null) {
           setFailedHoop(h.id);
         }
@@ -114,8 +117,8 @@ function App() {
     React.createElement('div', { id: 'game' },
       React.createElement('div', { className: 'score' }, score),
       React.createElement('div', {
-        className: 'squirrel',
-        style: { transform: `translate(${SQUIRREL_X}px, ${squirrelY}px)` }
+        className: `squirrel${success ? ' success' : ''}`,
+        style: { transform: `translate(${SQUIRREL_X}px, ${squirrelY}px) scaleX(-1)` }
       }),
       hoops.map(h => React.createElement('div', {
         key: h.id,
