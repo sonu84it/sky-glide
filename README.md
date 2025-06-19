@@ -8,6 +8,8 @@ A simple browser game built with React where a flying squirrel glides through ho
 The page now bundles local copies of React, so no internet connection is required.
 2. Press **Spacebar** or tap to make the squirrel flap upward.
 3. Pass through the center of each hoop to score.
-4. If you miss a hoop, the game ends. Click **Restart** to play again.
+4. If you miss a hoop or fail to clear enough hoops each minute, the game ends. Click **Restart** to play again.
+
+The game now runs for five minutes with circles moving faster over time. You must pass through at least 20 hoops each minute to keep playing.
 
 The game uses React for rendering and CSS transitions for smooth movement. A small oscillator sound is played on each flap. The layout is responsive, so you can play on desktop or mobile.

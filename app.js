@@ -3,11 +3,11 @@ const { useState, useEffect } = React;
 const GRAVITY = 0.5;
 const FLAP = -8;
 const HOOP_INTERVAL = 2000; // ms
-const HOOP_SPEED = 2;
+const BASE_HOOP_SPEED = 2;
 const SQUIRREL_X = 100;
 const HOOP_SIZE = 80;
-const GAME_DURATION = 60;
-const WIN_SCORE = 10;
+const GAME_DURATION = 300; // 5 minutes
+const WIN_SCORE = 100;
 
 function randomY() {
   return Math.random() * (window.innerHeight - HOOP_SIZE - 100) + 50;
@@ -37,6 +37,7 @@ function App() {
   const [misses, setMisses] = useState(0);
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [success, setSuccess] = useState(false);
+  const [hoopSpeed, setHoopSpeed] = useState(BASE_HOOP_SPEED);
 
   const flap = () => {
     if (running) {
@@ -58,7 +59,7 @@ function App() {
       window.removeEventListener('keydown', handleKey);
       window.removeEventListener('touchstart', flap);
     };
-  }, [running]);
+  }, [running, hoopSpeed]);
 
   useEffect(() => {
     if (!running) return;
@@ -68,7 +69,7 @@ function App() {
         setSquirrelY(y => Math.max(0, Math.min(y + nv, window.innerHeight - 40)));
         return nv;
       });
-      setHoops(hs => hs.map(h => ({ ...h, x: h.x - HOOP_SPEED })));
+      setHoops(hs => hs.map(h => ({ ...h, x: h.x - hoopSpeed })));
     }, 20);
     const htimer = setInterval(() => {
       setHoops(hs => [...hs, { id: Date.now(), x: window.innerWidth + 50, y: randomY(), passed: false }]);
@@ -114,6 +115,13 @@ function App() {
 
   useEffect(() => {
     if (timeLeft <= 0) setRunning(false);
+    const elapsedMinutes = Math.floor((GAME_DURATION - timeLeft) / 60);
+    if (elapsedMinutes > 0 && (GAME_DURATION - timeLeft) % 60 === 0) {
+      if (score < elapsedMinutes * 20) {
+        setRunning(false);
+      }
+    }
+    setHoopSpeed(BASE_HOOP_SPEED + (GAME_DURATION - timeLeft) / 120);
   }, [timeLeft]);
 
 
@@ -124,6 +132,7 @@ function App() {
     setVelocity(0);
     setSquirrelY(window.innerHeight / 2);
     setHoops([{ id: Date.now(), x: window.innerWidth + 100, y: randomY(), passed: false }]);
+    setHoopSpeed(BASE_HOOP_SPEED);
     setRunning(true);
   };
 
