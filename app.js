@@ -82,7 +82,11 @@ function App() {
     if (!running) return;
     hoops.forEach(h => {
       if (!h.passed && h.x <= SQUIRREL_X + 30) {
-        if (Math.abs(squirrelY - h.y) <= HOOP_SIZE / 2) {
+        // Check distance between the centers of the squirrel and the hoop for
+        // a more forgiving collision detection.
+        const squirrelCenter = squirrelY + 20; // squirrel height is 40px
+        const hoopCenter = h.y + HOOP_SIZE / 2;
+        if (Math.abs(squirrelCenter - hoopCenter) <= HOOP_SIZE / 2) {
           h.passed = true;
           setScore(s => s + 1);
           setSuccess(true);
