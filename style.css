@@ -20,6 +20,10 @@ body {
   transition: transform 0.1s linear;
 }
 
+.squirrel.success {
+  filter: hue-rotate(90deg) saturate(2);
+}
+
 .hoop {
   position: absolute;
   width: 80px;
