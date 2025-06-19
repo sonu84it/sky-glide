@@ -6,6 +6,8 @@ const HOOP_INTERVAL = 2000; // ms
 const HOOP_SPEED = 2;
 const SQUIRREL_X = 100;
 const HOOP_SIZE = 80;
+const GAME_DURATION = 60;
+const WIN_SCORE = 10;
 
 function randomY() {
   return Math.random() * (window.innerHeight - HOOP_SIZE - 100) + 50;
@@ -32,7 +34,8 @@ function App() {
     { id: 0, x: window.innerWidth + 100, y: randomY(), passed: false }
   ]);
   const [score, setScore] = useState(0);
-  const [failedHoop, setFailedHoop] = useState(null);
+  const [misses, setMisses] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [success, setSuccess] = useState(false);
 
   const flap = () => {
@@ -68,31 +71,27 @@ function App() {
       setHoops(hs => hs.map(h => ({ ...h, x: h.x - HOOP_SPEED })));
     }, 20);
     const htimer = setInterval(() => {
-      if (failedHoop === null) {
-        setHoops(hs => [...hs, { id: Date.now(), x: window.innerWidth + 50, y: randomY(), passed: false }]);
-      }
+      setHoops(hs => [...hs, { id: Date.now(), x: window.innerWidth + 50, y: randomY(), passed: false }]);
     }, HOOP_INTERVAL);
     return () => {
       clearInterval(timer);
       clearInterval(htimer);
     };
-  }, [running, failedHoop]);
+  }, [running]);
 
   useEffect(() => {
     if (!running) return;
     hoops.forEach(h => {
       if (h.passed) return;
 
-      // If the hoop has moved past the squirrel without being passed,
-      // mark it as failed.
-      if (h.x + HOOP_SIZE < SQUIRREL_X && failedHoop === null) {
-        setFailedHoop(h.id);
+      if (h.x + HOOP_SIZE < SQUIRREL_X) {
+        h.passed = true;
+        setMisses(m => m + 1);
         return;
       }
 
-      // Only check collision while the squirrel overlaps the hoop horizontally.
       if (h.x <= SQUIRREL_X + 30 && h.x + HOOP_SIZE >= SQUIRREL_X) {
-        const squirrelCenter = squirrelY + 20; // squirrel height is 40px
+        const squirrelCenter = squirrelY + 20;
         const hoopCenter = h.y + HOOP_SIZE / 2;
         if (Math.abs(squirrelCenter - hoopCenter) <= HOOP_SIZE / 2) {
           h.passed = true;
@@ -103,29 +102,34 @@ function App() {
       }
     });
     setHoops(hs => hs.filter(h => h.x > -HOOP_SIZE));
-  }, [hoops, squirrelY, running, failedHoop]);
+  }, [hoops, squirrelY, running]);
 
   useEffect(() => {
-    if (failedHoop === null) return;
-    const h = hoops.find(h => h.id === failedHoop);
-    if (!h || h.x <= -HOOP_SIZE) {
-      setRunning(false);
-      setFailedHoop(null);
-    }
-  }, [hoops, failedHoop]);
+    if (!running) return;
+    const interval = setInterval(() => {
+      setTimeLeft(t => t - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [running]);
+
+  useEffect(() => {
+    if (timeLeft <= 0) setRunning(false);
+  }, [timeLeft]);
+
 
   const restart = () => {
     setScore(0);
+    setMisses(0);
+    setTimeLeft(GAME_DURATION);
     setVelocity(0);
     setSquirrelY(window.innerHeight / 2);
     setHoops([{ id: Date.now(), x: window.innerWidth + 100, y: randomY(), passed: false }]);
-    setFailedHoop(null);
     setRunning(true);
   };
 
   return (
     React.createElement('div', { id: 'game' },
-      React.createElement('div', { className: 'score' }, score),
+      React.createElement('div', { className: 'score' }, `Score: ${score} Missed: ${misses} Time: ${timeLeft}`),
       React.createElement('div', {
         className: `squirrel${success ? ' success' : ''}`,
         style: { transform: `translate(${SQUIRREL_X}px, ${squirrelY}px) scaleX(1)` }
@@ -136,10 +140,10 @@ function App() {
         style: { transform: `translate(${h.x}px, ${h.y}px)` }
       })),
       !running && React.createElement('div', { className: 'game-over' },
-        React.createElement('div', null, 'Game Over'),
+        React.createElement('div', null, score >= WIN_SCORE ? 'You Win!' : 'Game Over'),
         React.createElement('button', { className: 'restart', onClick: restart }, 'Restart')
       )
-    )
+      )
   );
 }
 
