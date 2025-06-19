@@ -118,7 +118,7 @@ function App() {
       React.createElement('div', { className: 'score' }, score),
       React.createElement('div', {
         className: `squirrel${success ? ' success' : ''}`,
-        style: { transform: `translate(${SQUIRREL_X}px, ${squirrelY}px) scaleX(-1)` }
+        style: { transform: `translate(${SQUIRREL_X}px, ${squirrelY}px) scaleX(1)` }
       }),
       hoops.map(h => React.createElement('div', {
         key: h.id,
