@@ -6,7 +6,7 @@ const HOOP_INTERVAL = 2000; // ms
 const BASE_HOOP_SPEED = 2;
 const SQUIRREL_X = 100;
 const HOOP_SIZE = 80;
-const GAME_DURATION = 300; // 5 minutes
+const GAME_DURATION = 120; // 2 minutes
 const WIN_SCORE = 100;
 
 function randomY() {
@@ -115,13 +115,14 @@ function App() {
 
   useEffect(() => {
     if (timeLeft <= 0) setRunning(false);
-    const elapsedMinutes = Math.floor((GAME_DURATION - timeLeft) / 60);
-    if (elapsedMinutes > 0 && (GAME_DURATION - timeLeft) % 60 === 0) {
-      if (score < elapsedMinutes * 20) {
+    const elapsedPeriods = Math.floor((GAME_DURATION - timeLeft) / 30);
+    if (elapsedPeriods > 0 && (GAME_DURATION - timeLeft) % 30 === 0) {
+      if (score < elapsedPeriods * 10) {
         setRunning(false);
       }
     }
-    setHoopSpeed(BASE_HOOP_SPEED + (GAME_DURATION - timeLeft) / 120);
+    const speedMultiplier = Math.pow(1.1, Math.floor((GAME_DURATION - timeLeft) / 10));
+    setHoopSpeed(BASE_HOOP_SPEED * speedMultiplier);
   }, [timeLeft]);
 
 
@@ -139,6 +140,9 @@ function App() {
   return (
     React.createElement('div', { id: 'game' },
       React.createElement('div', { className: 'score' }, `Score: ${score} Missed: ${misses} Time: ${timeLeft}`),
+      React.createElement('div', { className: 'instructions' },
+        'Press Space or tap to flap. Pass at least 10 hoops every 30 seconds for 2 minutes.'
+      ),
       React.createElement('div', {
         className: `squirrel${success ? ' success' : ''}`,
         style: { transform: `translate(${SQUIRREL_X}px, ${squirrelY}px) scaleX(1)` }
