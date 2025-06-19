@@ -81,14 +81,24 @@ function App() {
   useEffect(() => {
     if (!running) return;
     hoops.forEach(h => {
-      if (!h.passed && h.x <= SQUIRREL_X + 30) {
-        if (Math.abs(squirrelY - h.y) <= HOOP_SIZE / 2) {
+      if (h.passed) return;
+
+      // If the hoop has moved past the squirrel without being passed,
+      // mark it as failed.
+      if (h.x + HOOP_SIZE < SQUIRREL_X && failedHoop === null) {
+        setFailedHoop(h.id);
+        return;
+      }
+
+      // Only check collision while the squirrel overlaps the hoop horizontally.
+      if (h.x <= SQUIRREL_X + 30 && h.x + HOOP_SIZE >= SQUIRREL_X) {
+        const squirrelCenter = squirrelY + 20; // squirrel height is 40px
+        const hoopCenter = h.y + HOOP_SIZE / 2;
+        if (Math.abs(squirrelCenter - hoopCenter) <= HOOP_SIZE / 2) {
           h.passed = true;
           setScore(s => s + 1);
           setSuccess(true);
           setTimeout(() => setSuccess(false), 300);
-        } else if (failedHoop === null) {
-          setFailedHoop(h.id);
         }
       }
     });
