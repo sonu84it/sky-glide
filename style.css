@@ -16,7 +16,7 @@ body {
   position: absolute;
   width: 60px;
   height: 40px;
-  background: url('assets/squirrel.svg') center/contain no-repeat;
+  background: url('assets/squirrel_right.svg') center/contain no-repeat;
   transition: transform 0.1s linear;
 }
 
